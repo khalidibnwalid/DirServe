@@ -30,17 +30,13 @@ func main() {
 		log.Fatalf("Error getting absolute path: %v", err)
 	}
 
-	// Verify directory exists
 	if _, err := os.Stat(absPath); os.IsNotExist(err) {
 		log.Fatalf("Directory does not exist: %s", absPath)
 	}
 
-	// Create a safe file server handler
 	fileServer := http.FileServer(http.Dir(absPath))
-
 	fileServerWithMiddlewares := middlewares.ApplyMiddlewares(fileServer, middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
 
-	// Apply authentication if enabled
 	if *enableAuth {
 		fileServerWithMiddlewares = middlewares.BasicAuthMiddleware(fileServerWithMiddlewares, *username, *password)
 		log.Println("Basic authentication enabled")
@@ -66,6 +62,8 @@ func main() {
 	}
 
 	server := &http.Server{
+		Addr:              fmt.Sprintf(":%d", *port),
+		Handler:           http.DefaultServeMux,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
