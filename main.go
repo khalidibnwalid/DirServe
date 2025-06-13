@@ -1,47 +1,26 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"khalidibnwalid/dirserve/internal/helpers"
 	"khalidibnwalid/dirserve/internal/middlewares"
 	"khalidibnwalid/dirserve/internal/templviews"
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 )
 
 func main() {
-	port := flag.Int("port", 8080, "Port to serve on")
-	directory := flag.String("dir", ".", "Directory to serve files from")
-	enableAuth := flag.Bool("auth", false, "Enable basic authentication")
-	username := flag.String("user", "", "Username for basic authentication")
-	password := flag.String("pass", "", "Password for basic authentication")
-	flag.Parse()
+	flags := helpers.GetFlags()
 
-	// Check if authentication is enabled but credentials are missing
-	if *enableAuth && (*username == "" || *password == "") {
-		log.Fatal("'-auth' enabled, '-user' and '-pass' must be set")
-	}
-
-	absPath, err := filepath.Abs(*directory)
-	if err != nil {
-		log.Fatalf("Error getting absolute path: %v", err)
-	}
-
-	if _, err := os.Stat(absPath); os.IsNotExist(err) {
-		log.Fatalf("Directory does not exist: %s", absPath)
-	}
-
-	fileServer := http.FileServer(http.Dir(absPath))
+	fileServer := http.FileServer(http.Dir(flags.AbsolutePath))
 	fileServerWithMiddlewares := middlewares.ApplyMiddlewares(fileServer, middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
-	templWithMiddlewares := middlewares.ApplyMiddlewares(templviews.Handler(), middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
+	templWithMiddlewares := middlewares.ApplyMiddlewares(templviews.Handler(), middlewares.LoggingMiddleware)
 
-	if *enableAuth {
-		fileServerWithMiddlewares = middlewares.BasicAuthMiddleware(fileServerWithMiddlewares, *username, *password)
-		templWithMiddlewares = middlewares.BasicAuthMiddleware(templWithMiddlewares, *username, *password)
+	if flags.EnableAuth {
+		fileServerWithMiddlewares = middlewares.BasicAuthMiddleware(fileServerWithMiddlewares, flags.Username, flags.Password)
+		templWithMiddlewares = middlewares.BasicAuthMiddleware(templWithMiddlewares, flags.Username, flags.Password)
 		log.Println("Basic authentication enabled")
 	}
 
@@ -57,15 +36,15 @@ func main() {
 	// Get the local IP address for display purposes
 	localIP := GetOutboundIP()
 
-	log.Printf("Starting server at http://%s:%d", localIP, *port)
-	log.Printf("Serving files from: %s", absPath)
+	log.Printf("Starting server at http://%s:%d", localIP, flags.Port)
+	log.Printf("Serving files from: %s", flags.AbsolutePath)
 
-	if *enableAuth {
-		log.Printf("Authentication required: username=%s", *username)
+	if flags.EnableAuth {
+		log.Printf("Authentication required: username=%s", flags.Username)
 	}
 
 	server := &http.Server{
-		Addr:              fmt.Sprintf(":%d", *port),
+		Addr:              fmt.Sprintf(":%d", flags.Port),
 		Handler:           http.DefaultServeMux,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      15 * time.Second,
