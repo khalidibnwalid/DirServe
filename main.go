@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"khalidibnwalid/dirserve/internal/middlewares"
+	"khalidibnwalid/dirserve/internal/templviews"
 	"log"
 	"net"
 	"net/http"
@@ -36,15 +37,17 @@ func main() {
 
 	fileServer := http.FileServer(http.Dir(absPath))
 	fileServerWithMiddlewares := middlewares.ApplyMiddlewares(fileServer, middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
+	templWithMiddlewares := middlewares.ApplyMiddlewares(templviews.Handler(), middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
 
 	if *enableAuth {
 		fileServerWithMiddlewares = middlewares.BasicAuthMiddleware(fileServerWithMiddlewares, *username, *password)
+		templWithMiddlewares = middlewares.BasicAuthMiddleware(templWithMiddlewares, *username, *password)
 		log.Println("Basic authentication enabled")
 	}
 
 	// Register handlers
 	http.Handle("/raw/", http.StripPrefix("/raw/", fileServerWithMiddlewares))
-	// http.Handle("/web/", http.StripPrefix("/web/", ""))
+	http.Handle("/web/", http.StripPrefix("/web/", templWithMiddlewares))
 
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
