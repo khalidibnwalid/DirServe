@@ -1,0 +1,45 @@
+package templviews
+
+templ Gallery(currentPath string, breadcrumbs []breadcrumb, files []FileItem) {
+	@Layout("Gallery", breadcrumbs) {
+		<div class="gallery">
+			for _, file := range files {
+				<div class="gallery-item">
+					if file.IsImage {
+						<a href="#" class="lightbox-trigger">
+							<img src={ "/raw/" + file.Path } alt={ file.Name } loading="lazy" data-lightbox="gallery"/>
+							<div class="item-info">
+								<div class="item-name">{ file.Name }</div>
+								<div class="item-size">
+									<span>{ formatFileSize(file.Size) }</span>
+								</div>
+							</div>
+						</a>
+					} else {
+						<a href={ templ.SafeURL("/web/" + file.Path) }>
+							if file.IsDir {
+								<div class="folder-icon">📁</div>
+							} else if file.IsVideo {
+								<div class="file-icon">🎬</div>
+							} else if file.IsAudio {
+								<div class="file-icon">🎵</div>
+							} else {
+								<div class="file-icon">📄</div>
+							}
+							<div class="item-info">
+								<div class="item-name">{ file.Name }</div>
+								<div class="item-size">
+									if file.IsDir {
+										<span>Directory</span>
+									} else {
+										<span>{ formatFileSize(file.Size) }</span>
+									}
+								</div>
+							</div>
+						</a>
+					}
+				</div>
+			}
+		</div>
+	}
+}

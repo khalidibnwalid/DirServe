@@ -1,0 +1,31 @@
+package templviews
+
+import "path/filepath"
+
+templ FileViewer(file FileItem, breadcrumbs []breadcrumb) {
+	@Layout("File Viewer - " + file.Name, breadcrumbs) {
+		<div class="file-viewer">
+			if file.IsImage {
+				<img src={ "/raw/" + file.Path } alt={ file.Name } data-lightbox="viewer" class="lightbox-enabled"/>
+			} else if file.IsVideo {
+				<video controls width="100%">
+					<source src={ "/raw/" + file.Path } type="video/mp4"/>
+					Your browser does not support the video tag.
+				</video>
+			} else if file.IsAudio {
+				<audio controls style="width:100%">
+					<source src={ "/raw/" + file.Path } type="audio/mpeg"/>
+					Your browser does not support the audio element.
+				</audio>
+			} else {
+				<div>
+					<p>This file type cannot be previewed in the browser.</p>
+				</div>
+			}
+			<div class="file-actions">
+				<a href={ templ.SafeURL("/raw/" + file.Path) } class="btn" download>Download</a>
+				<a href={ templ.SafeURL("/web/" + filepath.Dir(file.Path)) } class="btn">Back to Gallery</a>
+			</div>
+		</div>
+	}
+}

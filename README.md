@@ -1,6 +1,6 @@
 # DirServe
 
-A lightweight, configurable HTTP server for exposing local directories over a network. DirServe provides a simple way to serve files from any directory on your system with optional security features.
+A simple, lightweight, HTTP server for exposing local directories over a local network. DirServe provides a simple way to serve files from any directory on your system with optional security features.
 
 ## Features
 
@@ -11,7 +11,7 @@ A lightweight, configurable HTTP server for exposing local directories over a ne
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dirserve.git
+git clone https://github.com/khalidibnwalid/DirServe
 
 # Build the application
 cd dirserve
@@ -57,6 +57,7 @@ go build
 ## Endpoints
 
 - `/raw/` - Direct file server access
+- `/raw/` - web ui for browsing
 - `/ping` - Health check endpoint (returns "pong")
 
 ## Security Considerations
