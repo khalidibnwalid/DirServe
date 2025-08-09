@@ -2,12 +2,25 @@
 
 A simple, lightweight, HTTP server for exposing local directories over a local network. DirServe provides a simple way to serve files from any directory on your system with optional security features.
 
+Note: *currently videos are not supported.*
+
+![Screenshot][screenshot]
+
+
 ## Features
 
 - Serve files from any local directory
 - Basic authentication support
 
 ## Installation
+
+### Via `go install` (Recommended)
+
+```bash
+go install github.com/khalidibnwalid/DirServe@latest
+```
+
+### Via Manual Build
 
 ```bash
 # Clone the repository
@@ -21,7 +34,7 @@ go build
 ## Usage
 
 ```bash
-./dirserve [flags]
+dirserve [flags]
 ```
 
 ### Command-line Flags
@@ -63,3 +76,5 @@ go build
 ## Security Considerations
 
 When using DirServe, be aware that you are exposing files to the network. Use the authentication option when serving sensitive content, and be careful about which directories you choose to expose.
+
+[screenshot]: https://raw.githubusercontent.com/khalidibnwalid/DirServe/refs/heads/main/assets/cover.webp
