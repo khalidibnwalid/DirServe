@@ -17,7 +17,9 @@ func main() {
 
 	fileServer := http.FileServer(http.Dir(flags.AbsolutePath))
 	fileServerWithMiddlewares := middlewares.ApplyMiddlewares(fileServer, middlewares.LoggingMiddleware, middlewares.SecurityHeadersMiddleware)
-	templWithMiddlewares := middlewares.ApplyMiddlewares(templviews.Handler(), middlewares.LoggingMiddleware)
+
+	templHandler := templviews.Handler(flags.AbsolutePath)
+	templWithMiddlewares := middlewares.ApplyMiddlewares(templHandler, middlewares.LoggingMiddleware)
 
 	if flags.EnableAuth {
 		fileServerWithMiddlewares = middlewares.BasicAuthMiddleware(fileServerWithMiddlewares, flags.Username, flags.Password)
@@ -28,6 +30,10 @@ func main() {
 	// Register handlers
 	http.Handle("/raw/", http.StripPrefix("/raw/", fileServerWithMiddlewares))
 	http.Handle("/web/", http.StripPrefix("/web/", templWithMiddlewares))
+	
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/web/", http.StatusFound)
+	})
 
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

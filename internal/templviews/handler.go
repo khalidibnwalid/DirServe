@@ -12,17 +12,9 @@ import (
 	"github.com/a-h/templ"
 )
 
-func Handler() http.Handler {
+func Handler(rootDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestPath := r.URL.Path
-
-		rootDir := "."
-		for i, arg := range os.Args {
-			if arg == "-dir" && i+1 < len(os.Args) {
-				rootDir = os.Args[i+1]
-				break
-			}
-		}
 
 		absPath, err := filepath.Abs(rootDir)
 		if err != nil {
@@ -98,7 +90,7 @@ func Handler() http.Handler {
 			// It's a file, show file viewer
 			fileItem := FileItem{
 				Name:    fileInfo.Name(),
-				Path:   requestPath,
+				Path:    requestPath,
 				IsDir:   fileInfo.IsDir(),
 				Size:    fileInfo.Size(),
 				IsImage: isImage(fileInfo.Name()),
