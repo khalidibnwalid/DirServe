@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"khalidibnwalid/dirserve/internal/helpers"
-	"khalidibnwalid/dirserve/internal/middlewares"
-	"khalidibnwalid/dirserve/internal/templviews"
 	"log"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/khalidibnwalid/DirServe/internal/helpers"
+	"github.com/khalidibnwalid/DirServe/internal/middlewares"
+	"github.com/khalidibnwalid/DirServe/internal/templviews"
 )
 
 func main() {
